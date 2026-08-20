@@ -1,6 +1,6 @@
 {
   "name": "@janossik/kysely-toolkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "bin": {
     "kysely-toolkit": "./dist/cli.js"
@@ -12,7 +12,9 @@
     "./config": "./dist/config.js",
     "./fileName": "./dist/fileName.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
