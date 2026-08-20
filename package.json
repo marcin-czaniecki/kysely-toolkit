@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "A toolkit for Kysely migrations and seeds",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "Marcin Czaniecki <marcinczaniecki97@gmail.com>",
   "homepage": "https://github.com/marcin-czaniecki/kysely-toolkit#readme",
   "repository": {

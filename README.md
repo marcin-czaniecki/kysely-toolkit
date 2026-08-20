@@ -188,4 +188,4 @@ Seeds are tracked in a `kysely_seed` table. Each seed runs only once unless you 
 
 ## License
 
-UNLICENSED
+[MIT](./LICENSE) © Marcin Czaniecki
