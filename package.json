@@ -1,28 +1,74 @@
 {
   "name": "@janossik/kysely-toolkit",
   "version": "0.1.1",
+  "description": "A toolkit for Kysely migrations and seeds",
   "type": "module",
+  "license": "UNLICENSED",
+  "author": "Marcin Czaniecki <marcinczaniecki97@gmail.com>",
+  "homepage": "https://github.com/marcin-czaniecki/kysely-toolkit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcin-czaniecki/kysely-toolkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marcin-czaniecki/kysely-toolkit/issues"
+  },
+  "keywords": [
+    "kysely",
+    "migration",
+    "migrations",
+    "seed",
+    "seeds",
+    "postgresql",
+    "database",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "bin": {
     "kysely-toolkit": "./dist/cli.js"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./migrate": "./dist/migrate.js",
-    "./seed": "./dist/seed.js",
-    "./config": "./dist/config.js",
-    "./fileName": "./dist/fileName.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./migrate": {
+      "types": "./dist/migrate.d.ts",
+      "import": "./dist/migrate.js"
+    },
+    "./seed": {
+      "types": "./dist/seed.d.ts",
+      "import": "./dist/seed.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
+    },
+    "./fileName": {
+      "types": "./dist/fileName.d.ts",
+      "import": "./dist/fileName.js"
+    }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
     "prepublishOnly": "npm run build",
     "prepack": "npm run build",
-    "release:patch": "npm version patch && npm publish --access public",
-    "release:minor": "npm version minor && npm publish --access public",
-    "release:major": "npm version major && npm publish --access public"
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
