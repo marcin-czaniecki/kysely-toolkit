@@ -1,11 +1,11 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { v7 as uuidv7 } from "uuid";
 import type { Kysely } from "kysely";
 import { sql } from "kysely";
 import type { KyselyToolkitConfig } from "./config.js";
 import { buildFileName, parseFileName, slugify } from "./fileName.js";
+import { hasModuleExtension, loadUserModule, stripModuleExtension } from "./loadUserModule.js";
 
 const SEED_TABLE = "kysely_seed";
 
@@ -42,7 +42,7 @@ async function listSeedFiles(seedFolder: string) {
   }
 
   return entries
-    .filter((file) => file.endsWith(".ts"))
+    .filter((file) => hasModuleExtension(file))
     .filter((file) => parseFileName(file) !== null)
     .sort();
 }
@@ -56,14 +56,14 @@ export async function runSeeds(db: Kysely<any>, options?: SeedOptions) {
   const files = await listSeedFiles(folder);
 
   for (const file of files) {
-    const name = file.replace(/\.ts$/, "");
+    const name = stripModuleExtension(file);
 
     if (executed.has(name)) {
       console.log(`${name}: already executed`);
       continue;
     }
 
-    const module = await import(pathToFileURL(path.join(folder, file)).href);
+    const module = await loadUserModule(path.join(folder, file));
     const seed = module.seed;
 
     if (typeof seed !== "function") {
@@ -71,7 +71,7 @@ export async function runSeeds(db: Kysely<any>, options?: SeedOptions) {
     }
 
     await db.transaction().execute(async (trx) => {
-      await seed(trx);
+      await (seed as (db: Kysely<any>) => Promise<void>)(trx);
       await sql`
         INSERT INTO ${sql.table(SEED_TABLE)} (name, timestamp)
         VALUES (${name}, ${new Date().toISOString()})

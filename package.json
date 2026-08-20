@@ -24,7 +24,7 @@
     "cli"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22.18.0"
   },
   "bin": {
     "kysely-toolkit": "./dist/cli.js"
@@ -54,7 +54,8 @@
     }
   },
   "files": [
-    "dist",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "README.md"
   ],
   "sideEffects": false,

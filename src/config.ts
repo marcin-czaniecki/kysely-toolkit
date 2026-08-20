@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { loadUserModule } from "./loadUserModule.js";
 
 export type KyselyToolkitConfig = {
   connectionString?: string;
@@ -14,7 +14,14 @@ export type ToolkitConfig = {
   "kysely-toolkit"?: KyselyToolkitConfig;
 };
 
-const CONFIG_FILE_NAME = "toolkit.config.ts";
+const CONFIG_FILE_NAMES = [
+  "toolkit.config.mts",
+  "toolkit.config.ts",
+  "toolkit.config.mjs",
+  "toolkit.config.js",
+] as const;
+
+const DEFAULT_CONFIG_FILE_NAME = "toolkit.config.mts";
 
 const DEFAULT_CONFIG: Required<KyselyToolkitConfig> = {
   connectionString: "",
@@ -51,17 +58,21 @@ const CONFIG_TEMPLATE = [
 
 export async function initConfig(cwd?: string): Promise<string> {
   const workingDir = cwd ?? process.cwd();
-  const configPath = path.join(workingDir, CONFIG_FILE_NAME);
 
-  try {
-    await fs.access(configPath);
-    throw new Error(`${CONFIG_FILE_NAME} already exists at ${configPath}`);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-      throw error;
+  for (const fileName of CONFIG_FILE_NAMES) {
+    const existingPath = path.join(workingDir, fileName);
+
+    try {
+      await fs.access(existingPath);
+      throw new Error(`${fileName} already exists at ${existingPath}`);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
     }
   }
 
+  const configPath = path.join(workingDir, DEFAULT_CONFIG_FILE_NAME);
   await fs.writeFile(configPath, CONFIG_TEMPLATE, "utf8");
   await fs.mkdir(path.join(workingDir, "migrations"), { recursive: true });
   await fs.mkdir(path.join(workingDir, "seeds"), { recursive: true });
@@ -73,13 +84,15 @@ async function findConfigFile(cwd: string): Promise<string | null> {
   let current = cwd;
 
   while (true) {
-    const candidate = path.join(current, CONFIG_FILE_NAME);
+    for (const fileName of CONFIG_FILE_NAMES) {
+      const candidate = path.join(current, fileName);
 
-    try {
-      await fs.access(candidate);
-      return candidate;
-    } catch {
-      // not found, go up
+      try {
+        await fs.access(candidate);
+        return candidate;
+      } catch {
+        // try next name / directory
+      }
     }
 
     const parent = path.dirname(current);
@@ -106,17 +119,15 @@ export async function loadConfig(cwd?: string): Promise<Required<KyselyToolkitCo
   }
 
   const configDir = path.dirname(configPath);
-  const module = await import(pathToFileURL(configPath).href);
-  const fullConfig: ToolkitConfig = module.default ?? module;
+  const module = await loadUserModule(configPath);
+  const fullConfig: ToolkitConfig = (module.default as ToolkitConfig | undefined) ?? (module as ToolkitConfig);
   const userConfig = fullConfig["kysely-toolkit"] ?? {};
 
-  const resolved: Required<KyselyToolkitConfig> = {
+  return {
     connectionString: userConfig.connectionString ?? process.env.DATABASE_URL ?? "",
     migrationsPath: path.resolve(configDir, userConfig.migrationsPath ?? DEFAULT_CONFIG.migrationsPath),
     seedsPath: path.resolve(configDir, userConfig.seedsPath ?? DEFAULT_CONFIG.seedsPath),
     migrationTemplate: userConfig.migrationTemplate ?? DEFAULT_CONFIG.migrationTemplate,
     seedTemplate: userConfig.seedTemplate ?? DEFAULT_CONFIG.seedTemplate,
   };
-
-  return resolved;
 }

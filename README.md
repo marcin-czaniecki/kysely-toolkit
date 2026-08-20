@@ -2,12 +2,20 @@
 
 Migration and seed management toolkit for [Kysely](https://kysely.dev/). Provides a CLI and a programmatic API for managing database migrations and seeds with UUIDv7-based file ordering.
 
+## Requirements
+
+- **Node.js >= 22.18** — config, migrations, and seeds are loaded with Node's native TypeScript type stripping (no `tsx` / `ts-node` needed)
+- **PostgreSQL** via `pg`
+- Generated files use **`.mts`** (always ESM), so they work even if your app `package.json` is CommonJS
+
+Use erasable TypeScript only in those files (`import type`, no `enum` / parameter properties). Prefer `import type` for type-only imports.
+
 ## Features
 
 - **Migrations** — up, down, latest, status, reset, redo
 - **Seeds** — run, reset, tracked execution (runs each seed only once)
 - **Scaffolding** — generate migration and seed files with UUIDv7 timestamps
-- **Configuration** — `toolkit.config.ts` with support for multiple packages in one config file
+- **Configuration** — `toolkit.config.mts` (also loads `.ts` / `.mjs` / `.js`)
 - **Programmatic API** — import functions directly in your code
 
 ## Installation
@@ -30,7 +38,7 @@ Scaffold a config file and folders:
 npx kysely-toolkit init
 ```
 
-This creates `toolkit.config.ts` plus `./migrations` and `./seeds`. You can also create the config manually:
+This creates `toolkit.config.mts` plus `./migrations` and `./seeds`. You can also create the config manually:
 
 ```typescript
 import type { ToolkitConfig } from "@janossik/kysely-toolkit";
@@ -44,17 +52,17 @@ export default {
 } satisfies ToolkitConfig;
 ```
 
+Supported config filenames (first match wins, searched upward): `toolkit.config.mts`, `.ts`, `.mjs`, `.js`.
+
 All fields are optional. Defaults:
 
-| Field               | Default                  | Description                           |
-|---------------------|--------------------------|---------------------------------------|
-| `connectionString`  | `process.env.DATABASE_URL` | PostgreSQL connection string        |
-| `migrationsPath`    | `./migrations`           | Directory for migration files         |
-| `seedsPath`         | `./seeds`                | Directory for seed files              |
-| `migrationTemplate` | Kysely up/down stub      | Template for generated migration files |
-| `seedTemplate`      | Kysely seed stub         | Template for generated seed files     |
-
-The config file is searched upward from the current directory, so it works with monorepos.
+| Field               | Default                    | Description                            |
+|---------------------|----------------------------|----------------------------------------|
+| `connectionString`  | `process.env.DATABASE_URL` | PostgreSQL connection string           |
+| `migrationsPath`    | `./migrations`             | Directory for migration files          |
+| `seedsPath`         | `./seeds`                  | Directory for seed files               |
+| `migrationTemplate` | Kysely up/down stub        | Template for generated migration files |
+| `seedTemplate`      | Kysely seed stub           | Template for generated seed files      |
 
 ## CLI Usage
 
@@ -64,9 +72,9 @@ npx kysely-toolkit <command> [args]
 
 ### Setup
 
-| Command | Description                                      |
-|---------|--------------------------------------------------|
-| `init`  | Create `toolkit.config.ts`, migrations and seeds |
+| Command | Description                                       |
+|---------|---------------------------------------------------|
+| `init`  | Create `toolkit.config.mts`, migrations and seeds |
 
 ### Migration commands
 
@@ -150,13 +158,13 @@ import { buildFileName, parseFileName, slugify } from "@janossik/kysely-toolkit/
 
 ## File naming
 
-Generated files use UUIDv7 for ordering:
+Generated files use UUIDv7 for ordering and the `.mts` extension (always ESM):
 
 ```
-019f1758-ba87-731c-b53b-e334dce00e5a_create_users.ts
+019f1758-ba87-731c-b53b-e334dce00e5a_create_users.mts
 ```
 
-UUIDv7 is time-sortable, so migrations and seeds always run in creation order without numeric prefixes.
+Existing `.ts` / `.js` / `.mjs` / `.cjs` / `.cts` migration and seed files are still loaded. UUIDv7 is time-sortable, so files run in creation order without numeric prefixes.
 
 ## Generated migration template
 

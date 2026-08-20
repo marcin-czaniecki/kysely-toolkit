@@ -34,7 +34,7 @@ async function main() {
   }
 
   if (!config.connectionString) {
-    console.error("DATABASE_URL is not set. Provide it via environment variable or toolkit.config.ts");
+    console.error("DATABASE_URL is not set. Provide it via environment variable or toolkit.config.mts");
     process.exit(1);
   }
 

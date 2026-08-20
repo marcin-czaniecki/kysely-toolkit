@@ -4,7 +4,7 @@
 
 1. PREREQUISITES
 ----------------
-- Node.js >= 18
+- Node.js >= 22.18
 - npm account (https://www.npmjs.com/signup)
 - npm organization "@janossik" created on npmjs.com
   (Settings -> Packages -> Organizations -> Add Organization)

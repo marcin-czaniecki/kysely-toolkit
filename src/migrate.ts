@@ -1,27 +1,26 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { v7 as uuidv7 } from "uuid";
 import type { Kysely } from "kysely";
 import { FileMigrationProvider, Migrator } from "kysely/migration";
 import type { KyselyToolkitConfig } from "./config.js";
 import { buildFileName, slugify } from "./fileName.js";
+import { loadUserModule, toModuleUrl } from "./loadUserModule.js";
 
 export type MigrateOptions = {
   migrationFolder?: string;
 };
 
 function createMigrator(db: Kysely<any>, migrationFolder: string) {
-  const migrationPath = {
-    join: (...parts: string[]) => pathToFileURL(path.join(...parts)).href,
-  };
-
   return new Migrator({
     db,
     provider: new FileMigrationProvider({
       fs,
-      path: migrationPath,
+      path: {
+        join: (...parts: string[]) => toModuleUrl(path.join(...parts)),
+      },
       migrationFolder,
+      import: (modulePath) => loadUserModule(modulePath),
     }),
   });
 }
