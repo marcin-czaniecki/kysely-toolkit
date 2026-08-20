@@ -1,0 +1,41 @@
+{
+  "name": "@janossik/kysely-toolkit",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "kysely-toolkit": "./dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./migrate": "./dist/migrate.js",
+    "./seed": "./dist/seed.js",
+    "./config": "./dist/config.js",
+    "./fileName": "./dist/fileName.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "prepublishOnly": "npm run build",
+    "prepack": "npm run build",
+    "release:patch": "npm version patch && npm publish --access public",
+    "release:minor": "npm version minor && npm publish --access public",
+    "release:major": "npm version major && npm publish --access public"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "uuid": "^14.0.1"
+  },
+  "peerDependencies": {
+    "kysely": ">=0.27.0",
+    "pg": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "@types/pg": "^8.20.0",
+    "kysely": "^0.29.2",
+    "pg": "^8.22.0",
+    "tsdown": "^0.22.3",
+    "typescript": "^6.0.3"
+  }
+}

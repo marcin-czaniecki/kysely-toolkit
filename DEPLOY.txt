@@ -1,0 +1,88 @@
+================================================================================
+  @janossik/kysely-toolkit — Deployment Guide
+================================================================================
+
+1. PREREQUISITES
+----------------
+- Node.js >= 18
+- npm account (https://www.npmjs.com/signup)
+- npm organization "@janossik" created on npmjs.com
+  (Settings -> Packages -> Organizations -> Add Organization)
+
+2. FIRST-TIME SETUP
+--------------------
+a) Log in to npm in the terminal:
+
+   npm login
+
+b) Verify you are logged in:
+
+   npm whoami
+
+c) If @janossik is a new scope, make sure it exists as an organization on npm.
+   Scoped packages (@janossik/*) require either an organization or a paid user
+   scope to publish as public.
+
+3. BUILDING
+-----------
+   npm install
+   npm run build
+
+   This runs tsdown and produces the dist/ folder with ESM output + .d.ts files.
+
+4. DRY RUN (preview what will be published)
+--------------------------------------------
+   npm pack --dry-run
+
+   Check that only dist/ files, package.json, and README.md are included.
+   The "files" field in package.json restricts what gets published.
+
+5. PUBLISHING
+-------------
+First release:
+
+   npm publish --access public
+
+   The --access public flag is required for scoped packages on the free plan.
+
+Subsequent releases (use one of):
+
+   npm run release:patch    # 0.1.0 -> 0.1.1
+   npm run release:minor    # 0.1.0 -> 0.2.0
+   npm run release:major    # 0.1.0 -> 1.0.0
+
+   These scripts bump the version, build, and publish in one step.
+
+6. MANUAL VERSION + PUBLISH
+----------------------------
+If you prefer manual control:
+
+   npm version patch        # or minor / major
+   npm run build
+   npm publish --access public
+
+7. VERIFYING THE RELEASE
+--------------------------
+   npm info @janossik/kysely-toolkit
+
+   Or visit: https://www.npmjs.com/package/@janossik/kysely-toolkit
+
+8. UNPUBLISHING (emergency only)
+---------------------------------
+Within 72 hours of publishing:
+
+   npm unpublish @janossik/kysely-toolkit@0.1.0
+
+   After 72 hours, you can only deprecate:
+
+   npm deprecate @janossik/kysely-toolkit@0.1.0 "reason"
+
+9. COMMON ISSUES
+-----------------
+- "402 Payment Required" -> use --access public for scoped packages
+- "403 Forbidden" -> verify you own the @janossik org on npm
+- "ENEEDAUTH" -> run npm login first
+- Build errors -> make sure peerDependencies (kysely, pg) are installed as
+  devDependencies for local development
+
+================================================================================
